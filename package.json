@@ -1,0 +1,33 @@
+{
+  "name": "cloudflare-d1-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.10",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest",
+    "deploy:dev": "wrangler deploy --env dev",
+    "deploy:production": "wrangler deploy",
+    "generate:openapi": "node --import tsx scripts/generate-openapi.ts",
+    "upload:openapi-artifact": "node scripts/upload-openapi-artifact.mjs"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^0.19.10",
+    "hono": "^4.6.14",
+    "zod": "3.25.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.6.4",
+    "@cloudflare/workers-types": "4.20251219.0",
+    "@types/node": "22.18.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.20.5",
+    "typescript": "5.9.3",
+    "vitest": "2.1.8",
+    "wrangler": "4.72.0"
+  }
+}

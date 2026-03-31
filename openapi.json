@@ -1,0 +1,841 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cloudflare D1 Adapter API",
+    "version": "1.0.0",
+    "description": "Cloudflare D1 adapter boundaries"
+  },
+  "components": {
+    "schemas": {},
+    "parameters": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases": {
+      "get": {
+        "summary": "List D1 databases",
+        "responses": {
+          "200": {
+            "description": "List of D1 databases",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a D1 database",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created database",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}": {
+      "get": {
+        "summary": "Get D1 database metadata",
+        "responses": {
+          "200": {
+            "description": "Database metadata",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Replace D1 database metadata",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated database",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Patch D1 database metadata",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Patched database",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a D1 database",
+        "responses": {
+          "204": {
+            "_def": {
+              "typeName": "ZodAny"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_any": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}/query": {
+      "post": {
+        "summary": "Execute SQL query against D1",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sql": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "sql"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "_def": {
+              "typeName": "ZodUnknown"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_unknown": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}/raw": {
+      "post": {
+        "summary": "Execute raw SQL statements",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sql": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "sql"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "_def": {
+              "typeName": "ZodUnknown"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_unknown": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}/export": {
+      "post": {
+        "summary": "Start database export",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "_def": {
+              "typeName": "ZodUnknown"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_unknown": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}/import": {
+      "post": {
+        "summary": "Import SQL into database",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "_def": {
+              "typeName": "ZodUnknown"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_unknown": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}/time-travel/bookmark": {
+      "get": {
+        "summary": "Get a time travel bookmark",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "_def": {
+              "typeName": "ZodUnknown"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_unknown": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/v4/databases/{databaseId}/time-travel/restore": {
+      "post": {
+        "summary": "Restore database to a bookmark",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "databaseId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "_def": {
+              "typeName": "ZodUnknown"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_unknown": true
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    },
+    "/internal/operations": {
+      "post": {
+        "summary": "Execute a D1 internal operation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operation": {
+                    "type": "string"
+                  },
+                  "contract_version": {
+                    "type": "string",
+                    "enum": [
+                      "1"
+                    ]
+                  },
+                  "claims": {
+                    "type": "object",
+                    "properties": {
+                      "role": {
+                        "type": "string",
+                        "enum": [
+                          "runtime",
+                          "ops"
+                        ]
+                      },
+                      "actor": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "role"
+                    ]
+                  },
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "databaseId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "payload": {}
+                    }
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "operation",
+                  "contract_version"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          },
+          "400": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          },
+          "403": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          },
+          "404": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          },
+          "422": {
+            "_def": {
+              "unknownKeys": "strip",
+              "catchall": {
+                "_def": {
+                  "typeName": "ZodNever"
+                },
+                "~standard": {
+                  "version": 1,
+                  "vendor": "zod"
+                }
+              },
+              "typeName": "ZodObject"
+            },
+            "~standard": {
+              "version": 1,
+              "vendor": "zod"
+            },
+            "_cached": null
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

@@ -1,0 +1,23 @@
+name = "cloudflare-d1-adapter"
+main = "src/index.ts"
+compatibility_date = "2026-01-08"
+workers_dev = false
+
+[[services]]
+binding = "INTERNAL_GATEWAY_SERVICE"
+service = "internal-gateway"
+
+[vars]
+ENV = "production"
+
+[env.dev]
+workers_dev = false
+
+[[env.dev.services]]
+binding = "INTERNAL_GATEWAY_SERVICE"
+service = "internal-gateway-dev"
+
+[env.dev.vars]
+ENV = "dev"
+
+[env.production]

@@ -1,0 +1,42 @@
+name: Generate OpenAPI
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'bun'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate openapi.json
+        run: bun run generate:openapi
+
+      - name: Upload openapi.json to R2
+        run: bun run upload:openapi-artifact
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_DEPLOYMENT_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          OPENAPI_R2_BUCKET: system-ops-hub
+          OPENAPI_CHANNEL: ${{ github.ref_name == 'main' && 'main' || 'dev' }}
