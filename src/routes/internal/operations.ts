@@ -140,14 +140,12 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     const body = await c.req.json();
     const parsed = internalOperationSchema.safeParse(body);
     if (!parsed.success) {
-      return c
-        .status(toContentfulStatusCode(400))
+      return c.status(toContentfulStatusCode(400))
         .json({ error: parsed.error.message });
     }
 
     if (parsed.data.contract_version !== '1') {
-      return c
-        .status(toContentfulStatusCode(400))
+      return c.status(toContentfulStatusCode(400))
         .json({ error: 'unsupported contract version' });
     }
 
@@ -155,8 +153,7 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     try {
       definition = getOperationDefinition(parsed.data.operation);
   } catch (err) {
-      return c
-        .status(toContentfulStatusCode(404))
+      return c.status(toContentfulStatusCode(404))
         .json({ error: 'unsupported operation' });
     }
 
@@ -172,13 +169,11 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     });
   } catch (error) {
     if (error instanceof OperationInputError) {
-      return c
-        .status(toContentfulStatusCode(error.status))
+      return c.status(toContentfulStatusCode(error.status))
         .json({ error: error.message });
     }
     if (error instanceof D1RequestError) {
-      return c
-        .status(toContentfulStatusCode(error.status))
+      return c.status(toContentfulStatusCode(error.status))
         .json({ error: error.body });
     }
     throw error;

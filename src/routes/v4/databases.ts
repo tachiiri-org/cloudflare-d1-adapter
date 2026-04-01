@@ -61,8 +61,7 @@ async function parseJson<T>(c: Context<Env>) {
 
 function handleD1Error(c: Context<Env>, error: unknown) {
   if (error instanceof D1RequestError) {
-    return c
-      .status(toContentfulStatusCode(error.status))
+    return c.status(toContentfulStatusCode(error.status))
       .json({ error: error.body });
   }
   throw error;
@@ -101,8 +100,7 @@ const databaseGetRoute = createRoute({
 export const databaseGetHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -129,8 +127,7 @@ export const databaseCreateHandler = async (c: Context<Env>) => {
     const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
     const data = await client.createDatabase(payload);
-    return c
-      .status(toContentfulStatusCode(201))
+    return c.status(toContentfulStatusCode(201))
       .json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -153,8 +150,7 @@ const databaseUpdateRoute = createRoute({
 export const databaseUpdateHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -183,8 +179,7 @@ const databasePatchRoute = createRoute({
 export const databasePatchHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -209,8 +204,7 @@ const databaseDeleteRoute = createRoute({
 export const databaseDeleteHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -238,8 +232,7 @@ const databaseQueryRoute = createRoute({
 export const databaseQueryHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -268,8 +261,7 @@ const databaseRawRoute = createRoute({
 export const databaseRawHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -298,8 +290,7 @@ const databaseExportRoute = createRoute({
 export const databaseExportHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -328,8 +319,7 @@ const databaseImportRoute = createRoute({
 export const databaseImportHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -357,8 +347,7 @@ const timeTravelBookmarkRoute = createRoute({
 export const timeTravelBookmarkHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
@@ -386,8 +375,7 @@ const timeTravelRestoreRoute = createRoute({
 export const timeTravelRestoreHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c
-      .status(toContentfulStatusCode(400))
+    return c.status(toContentfulStatusCode(400))
       .json({ error: 'databaseId required' });
   }
   try {
