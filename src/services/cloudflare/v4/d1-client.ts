@@ -12,10 +12,10 @@ export class D1Client {
   constructor(private accountId: string, private token: string) {}
 
   public static fromEnv(env: EnvBindings): D1Client {
-    if (!env.CLOUDFLARE_ACCOUNT_ID || !env.CLOUDFLARE_API_TOKEN) {
+    if (!env.CLOUDFLARE_ACCOUNT_ID || !env.CLOUDFLARE_D1_TOKEN) {
       throw new Error('missing D1 environment configuration');
     }
-    return new D1Client(env.CLOUDFLARE_ACCOUNT_ID, env.CLOUDFLARE_API_TOKEN);
+    return new D1Client(env.CLOUDFLARE_ACCOUNT_ID, env.CLOUDFLARE_D1_TOKEN);
   }
 
   private get headers(): Record<string, string> {
