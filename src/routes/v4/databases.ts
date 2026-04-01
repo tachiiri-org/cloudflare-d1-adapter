@@ -7,6 +7,7 @@ import type { EnvBindings } from '../../env';
 import { D1Client, D1RequestError } from '../../services/cloudflare/v4/d1-client';
 
 const AnyResponse = z.unknown();
+const DatabaseCreatePayload = z.object({ name: z.string().min(1) }).passthrough();
 const DatabasePayload = z.object({}).passthrough();
 const QueryPayload = z.object({ sql: z.string().min(1) }).passthrough();
 const OptionalPayload = z.object({}).passthrough();
@@ -118,7 +119,7 @@ const databaseCreateRoute = createRoute({
   method: 'post',
   path: '/v4/databases',
   summary: 'Create a D1 database',
-  request: jsonRequest(DatabasePayload),
+  request: jsonRequest(DatabaseCreatePayload),
   responses: {
     201: jsonResponse(AnyResponse, 'Created database'),
     400: errorResponse('Bad request'),
