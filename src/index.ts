@@ -10,7 +10,7 @@ app.onError((err, c) => {
   return c.json({ error: 'internal_server_error' }, 500);
 });
 
-app.get('/health', () => new Response(JSON.stringify({ status: 'ok' }), { status: 200 }));
+app.get('/health', (c) => c.json({ status: 'ok' }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const registerRoute = (method: string, path: string, handler: any) => {
