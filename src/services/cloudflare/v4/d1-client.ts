@@ -1,4 +1,4 @@
-import type { Env } from '../../../env';
+import type { EnvBindings } from '../../../env';
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4';
 
@@ -11,7 +11,7 @@ export class D1RequestError extends Error {
 export class D1Client {
   constructor(private accountId: string, private token: string) {}
 
-  public static fromEnv(env: Env): D1Client {
+  public static fromEnv(env: EnvBindings): D1Client {
     if (!env.CLOUDFLARE_ACCOUNT_ID || !env.CLOUDFLARE_API_TOKEN) {
       throw new Error('missing D1 environment configuration');
     }

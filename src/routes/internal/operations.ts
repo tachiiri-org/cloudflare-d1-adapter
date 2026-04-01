@@ -40,27 +40,6 @@ class OperationInputError extends Error {
   }
 }
 
-const jsonResponse = (schema: z.ZodTypeAny, description: string) => ({
-  description,
-  content: {
-    'application/json': {
-      schema,
-    },
-  },
-});
-
-const errorResponse = (description: string) => ({
-  description,
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-    },
-  },
-});
-
-const getClientFromContext = (c: Context<Env>) => D1Client.fromEnv(c.env as Env);
-const toContentfulStatusCode = (status: number) => status as ContentfulStatusCode;
-
 function assertDatabaseId(operation: string, databaseId?: string) {
   if (!databaseId) {
     throw new OperationInputError(`databaseId is required for ${operation}`);
@@ -113,6 +92,11 @@ async function executeOperation(client: D1Client, operation: string, input: Reco
   }
 }
 
+const jsonResponse = (schema: z.ZodTypeAny, description: string) => ({
+  description,
+  content: { 'application/json': { schema } },
+});
+
 const internalOperationsRoute = createRoute({
   method: 'post',
   path: '/internal/operations',
@@ -128,10 +112,10 @@ const internalOperationsRoute = createRoute({
   },
   responses: {
     200: jsonResponse(internalResponseSchema, 'Operation result'),
-    400: errorResponse('Bad request'),
-    403: errorResponse('Forbidden'),
-    404: errorResponse('Not found'),
-    422: errorResponse('Idempotency key required'),
+    400: jsonResponse(ErrorSchema, 'Bad request'),
+    403: jsonResponse(ErrorSchema, 'Forbidden'),
+    404: jsonResponse(ErrorSchema, 'Not found'),
+    422: jsonResponse(ErrorSchema, 'Unprocessable entity'),
   },
 });
 
@@ -140,21 +124,18 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     const body = await c.req.json();
     const parsed = internalOperationSchema.safeParse(body);
     if (!parsed.success) {
-      return c.status(toContentfulStatusCode(400))
-        .json({ error: parsed.error.message });
+      return c.json({ error: parsed.error.message }, 400);
     }
 
     if (parsed.data.contract_version !== '1') {
-      return c.status(toContentfulStatusCode(400))
-        .json({ error: 'unsupported contract version' });
+      return c.json({ error: 'unsupported contract version' }, 400);
     }
 
     let definition;
     try {
       definition = getOperationDefinition(parsed.data.operation);
-  } catch (err) {
-      return c.status(toContentfulStatusCode(404))
-        .json({ error: 'unsupported operation' });
+    } catch (err) {
+      return c.json({ error: 'unsupported operation' }, 404 as ContentfulStatusCode);
     }
 
     const claims = parsed.data.claims ?? { role: 'runtime' };
@@ -169,12 +150,10 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     });
   } catch (error) {
     if (error instanceof OperationInputError) {
-      return c.status(toContentfulStatusCode(error.status))
-        .json({ error: error.message });
+      return c.json({ error: error.message }, error.status as ContentfulStatusCode);
     }
     if (error instanceof D1RequestError) {
-      return c.status(toContentfulStatusCode(error.status))
-        .json({ error: error.body });
+      return c.json({ error: error.body }, error.status as ContentfulStatusCode);
     }
     throw error;
   }

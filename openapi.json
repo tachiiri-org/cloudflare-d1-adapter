@@ -287,7 +287,7 @@
         "summary": "Delete a D1 database",
         "responses": {
           "204": {
-            "description": "Database deleted"
+            "description": "Deleted"
           },
           "400": {
             "description": "Bad request",
@@ -781,7 +781,7 @@
             }
           },
           "422": {
-            "description": "Idempotency key required",
+            "description": "Unprocessable entity",
             "content": {
               "application/json": {
                 "schema": {
