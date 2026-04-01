@@ -134,7 +134,7 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     let definition;
     try {
       definition = getOperationDefinition(parsed.data.operation);
-    } catch (err) {
+    } catch {
       return c.json({ error: 'unsupported operation' }, 404 as ContentfulStatusCode);
     }
 

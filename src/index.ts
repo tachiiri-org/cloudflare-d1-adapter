@@ -12,6 +12,7 @@ app.onError((err, c) => {
 
 app.get('/health', () => new Response(JSON.stringify({ status: 'ok' }), { status: 200 }));
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const registerRoute = (method: string, path: string, handler: any) => {
   const normalized = method.toLowerCase();
   switch (normalized) {
