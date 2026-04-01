@@ -287,34 +287,25 @@
         "summary": "Delete a D1 database",
         "responses": {
           "204": {
-            "_def": {
-              "typeName": "ZodAny"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_any": true
+            "description": "Database deleted"
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -353,34 +344,30 @@
         },
         "responses": {
           "200": {
-            "_def": {
-              "typeName": "ZodUnknown"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_unknown": true
+            "description": "Query result",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -419,34 +406,30 @@
         },
         "responses": {
           "200": {
-            "_def": {
-              "typeName": "ZodUnknown"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_unknown": true
+            "description": "Raw query result",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -477,34 +460,30 @@
         },
         "responses": {
           "200": {
-            "_def": {
-              "typeName": "ZodUnknown"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_unknown": true
+            "description": "Export started",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -535,34 +514,30 @@
         },
         "responses": {
           "200": {
-            "_def": {
-              "typeName": "ZodUnknown"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_unknown": true
+            "description": "Import started",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -583,34 +558,30 @@
         ],
         "responses": {
           "200": {
-            "_def": {
-              "typeName": "ZodUnknown"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_unknown": true
+            "description": "Time travel bookmark",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -641,34 +612,30 @@
         },
         "responses": {
           "200": {
-            "_def": {
-              "typeName": "ZodUnknown"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_unknown": true
+            "description": "Restore result",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }
@@ -734,104 +701,102 @@
         },
         "responses": {
           "200": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Operation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "operation": {
+                      "type": "string"
+                    },
+                    "contract_version": {
+                      "type": "string",
+                      "enum": [
+                        "1"
+                      ]
+                    },
+                    "result": {}
+                  },
+                  "required": [
+                    "operation",
+                    "contract_version"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           },
           "400": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           },
           "403": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           },
           "404": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           },
           "422": {
-            "_def": {
-              "unknownKeys": "strip",
-              "catchall": {
-                "_def": {
-                  "typeName": "ZodNever"
-                },
-                "~standard": {
-                  "version": 1,
-                  "vendor": "zod"
+            "description": "Idempotency key required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
-              },
-              "typeName": "ZodObject"
-            },
-            "~standard": {
-              "version": 1,
-              "vendor": "zod"
-            },
-            "_cached": null
+              }
+            }
           }
         }
       }

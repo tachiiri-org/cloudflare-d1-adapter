@@ -1,6 +1,7 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import type { Context } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Env } from '../../env';
 import { getOperationDefinition, OperationCategory } from '../../operations/catalog';
 import { D1Client, D1RequestError } from '../../services/cloudflare/v4/d1-client';
@@ -38,6 +39,27 @@ class OperationInputError extends Error {
     super(message);
   }
 }
+
+const jsonResponse = (schema: z.ZodTypeAny, description: string) => ({
+  description,
+  content: {
+    'application/json': {
+      schema,
+    },
+  },
+});
+
+const errorResponse = (description: string) => ({
+  description,
+  content: {
+    'application/json': {
+      schema: ErrorSchema,
+    },
+  },
+});
+
+const getClientFromContext = (c: Context<Env>) => D1Client.fromEnv(c.env as Env);
+const toContentfulStatusCode = (status: number) => status as ContentfulStatusCode;
 
 function assertDatabaseId(operation: string, databaseId?: string) {
   if (!databaseId) {
@@ -92,7 +114,7 @@ async function executeOperation(client: D1Client, operation: string, input: Reco
 }
 
 const internalOperationsRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/internal/operations',
   summary: 'Execute a D1 internal operation',
   request: {
@@ -105,11 +127,11 @@ const internalOperationsRoute = createRoute({
     },
   },
   responses: {
-    200: internalResponseSchema,
-    400: ErrorSchema,
-    403: ErrorSchema,
-    404: ErrorSchema,
-    422: ErrorSchema,
+    200: jsonResponse(internalResponseSchema, 'Operation result'),
+    400: errorResponse('Bad request'),
+    403: errorResponse('Forbidden'),
+    404: errorResponse('Not found'),
+    422: errorResponse('Idempotency key required'),
   },
 });
 
@@ -118,18 +140,24 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     const body = await c.req.json();
     const parsed = internalOperationSchema.safeParse(body);
     if (!parsed.success) {
-      return c.json({ error: parsed.error.message }, 400);
+      return c
+        .status(toContentfulStatusCode(400))
+        .json({ error: parsed.error.message });
     }
 
     if (parsed.data.contract_version !== '1') {
-      return c.json({ error: 'unsupported contract version' }, 400);
+      return c
+        .status(toContentfulStatusCode(400))
+        .json({ error: 'unsupported contract version' });
     }
 
     let definition;
     try {
       definition = getOperationDefinition(parsed.data.operation);
-    } catch (err) {
-      return c.json({ error: 'unsupported operation' }, 404);
+  } catch (err) {
+      return c
+        .status(toContentfulStatusCode(404))
+        .json({ error: 'unsupported operation' });
     }
 
     const claims = parsed.data.claims ?? { role: 'runtime' };
@@ -144,10 +172,14 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     });
   } catch (error) {
     if (error instanceof OperationInputError) {
-      return c.json({ error: error.message }, error.status);
+      return c
+        .status(toContentfulStatusCode(error.status))
+        .json({ error: error.message });
     }
     if (error instanceof D1RequestError) {
-      return c.json({ error: error.body }, error.status);
+      return c
+        .status(toContentfulStatusCode(error.status))
+        .json({ error: error.body });
     }
     throw error;
   }

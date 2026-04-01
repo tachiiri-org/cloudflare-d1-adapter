@@ -1,6 +1,7 @@
 import { createRoute } from '@hono/zod-openapi';
 import { z } from 'zod';
 import type { Context } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Env } from '../../env';
 import { D1Client, D1RequestError } from '../../services/cloudflare/v4/d1-client';
 
@@ -43,10 +44,12 @@ const errorResponse = (description: string) => ({
 });
 
 const clientFromEnv = (env: Env) => D1Client.fromEnv(env);
+const getClient = (c: Context<Env>) => clientFromEnv(c.env as Env);
+const toContentfulStatusCode = (status: number) => status as ContentfulStatusCode;
 
 async function parseJson<T>(c: Context<Env>) {
   try {
-    const length = c.req.headers.get('content-length');
+    const length = c.req.header('content-length');
     if (!length || length === '0') {
       return null;
     }
@@ -58,13 +61,15 @@ async function parseJson<T>(c: Context<Env>) {
 
 function handleD1Error(c: Context<Env>, error: unknown) {
   if (error instanceof D1RequestError) {
-    return c.json({ error: error.body }, error.status);
+    return c
+      .status(toContentfulStatusCode(error.status))
+      .json({ error: error.body });
   }
   throw error;
 }
 
 const databaseListRoute = createRoute({
-  method: 'GET',
+  method: 'get',
   path: '/v4/databases',
   summary: 'List D1 databases',
   responses: {
@@ -75,7 +80,8 @@ const databaseListRoute = createRoute({
 });
 export const databaseListHandler = async (c: Context<Env>) => {
   try {
-    const data = await clientFromEnv(c.env).listDatabases();
+    const client = getClient(c);
+    const data = await client.listDatabases();
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -83,7 +89,7 @@ export const databaseListHandler = async (c: Context<Env>) => {
 };
 
 const databaseGetRoute = createRoute({
-  method: 'GET',
+  method: 'get',
   path: '/v4/databases/{databaseId}',
   summary: 'Get D1 database metadata',
   responses: {
@@ -95,10 +101,13 @@ const databaseGetRoute = createRoute({
 export const databaseGetHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
-    const data = await clientFromEnv(c.env).getDatabase(databaseId);
+    const client = getClient(c);
+    const data = await client.getDatabase(databaseId);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -106,7 +115,7 @@ export const databaseGetHandler = async (c: Context<Env>) => {
 };
 
 const databaseCreateRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/v4/databases',
   summary: 'Create a D1 database',
   request: jsonRequest(DatabasePayload),
@@ -117,16 +126,19 @@ const databaseCreateRoute = createRoute({
 });
 export const databaseCreateHandler = async (c: Context<Env>) => {
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).createDatabase(payload);
-    return c.json(data, 201);
+    const data = await client.createDatabase(payload);
+    return c
+      .status(toContentfulStatusCode(201))
+      .json(data);
   } catch (error) {
     return handleD1Error(c, error);
   }
 };
 
 const databaseUpdateRoute = createRoute({
-  method: 'PUT',
+  method: 'put',
   path: '/v4/databases/{databaseId}',
   summary: 'Replace D1 database metadata',
   request: {
@@ -141,11 +153,14 @@ const databaseUpdateRoute = createRoute({
 export const databaseUpdateHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).updateDatabase(databaseId, payload);
+    const data = await client.updateDatabase(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -153,7 +168,7 @@ export const databaseUpdateHandler = async (c: Context<Env>) => {
 };
 
 const databasePatchRoute = createRoute({
-  method: 'PATCH',
+  method: 'patch',
   path: '/v4/databases/{databaseId}',
   summary: 'Patch D1 database metadata',
   request: {
@@ -168,11 +183,14 @@ const databasePatchRoute = createRoute({
 export const databasePatchHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).patchDatabase(databaseId, payload);
+    const data = await client.patchDatabase(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -180,42 +198,54 @@ export const databasePatchHandler = async (c: Context<Env>) => {
 };
 
 const databaseDeleteRoute = createRoute({
-  method: 'DELETE',
+  method: 'delete',
   path: '/v4/databases/{databaseId}',
   summary: 'Delete a D1 database',
-  responses: { 204: z.any(), 400: ErrorSchema },
+  responses: {
+    204: emptyResponse('Database deleted'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const databaseDeleteHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
-    await clientFromEnv(c.env).deleteDatabase(databaseId);
-    return c.json({}, 204);
+    const client = getClient(c);
+    await client.deleteDatabase(databaseId);
+    return new Response(null, { status: 204 });
   } catch (error) {
     return handleD1Error(c, error);
   }
 };
 
 const databaseQueryRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/v4/databases/{databaseId}/query',
   summary: 'Execute SQL query against D1',
   request: {
     params: z.object({ databaseId: z.string().min(1) }),
     ...jsonRequest(QueryPayload),
   },
-  responses: { 200: AnyResponse, 400: ErrorSchema },
+  responses: {
+    200: jsonResponse(AnyResponse, 'Query result'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const databaseQueryHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).queryDatabase(databaseId, payload);
+    const data = await client.queryDatabase(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -223,23 +253,29 @@ export const databaseQueryHandler = async (c: Context<Env>) => {
 };
 
 const databaseRawRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/v4/databases/{databaseId}/raw',
   summary: 'Execute raw SQL statements',
   request: {
     params: z.object({ databaseId: z.string().min(1) }),
     ...jsonRequest(QueryPayload),
   },
-  responses: { 200: AnyResponse, 400: ErrorSchema },
+  responses: {
+    200: jsonResponse(AnyResponse, 'Raw query result'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const databaseRawHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).rawDatabase(databaseId, payload);
+    const data = await client.rawDatabase(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -247,23 +283,29 @@ export const databaseRawHandler = async (c: Context<Env>) => {
 };
 
 const databaseExportRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/v4/databases/{databaseId}/export',
   summary: 'Start database export',
   request: {
     params: z.object({ databaseId: z.string().min(1) }),
     ...jsonRequest(OptionalPayload),
   },
-  responses: { 200: AnyResponse, 400: ErrorSchema },
+  responses: {
+    200: jsonResponse(AnyResponse, 'Export started'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const databaseExportHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).startExport(databaseId, payload);
+    const data = await client.startExport(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -271,23 +313,29 @@ export const databaseExportHandler = async (c: Context<Env>) => {
 };
 
 const databaseImportRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/v4/databases/{databaseId}/import',
   summary: 'Import SQL into database',
   request: {
     params: z.object({ databaseId: z.string().min(1) }),
     ...jsonRequest(OptionalPayload),
   },
-  responses: { 200: AnyResponse, 400: ErrorSchema },
+  responses: {
+    200: jsonResponse(AnyResponse, 'Import started'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const databaseImportHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).startImport(databaseId, payload);
+    const data = await client.startImport(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -295,21 +343,27 @@ export const databaseImportHandler = async (c: Context<Env>) => {
 };
 
 const timeTravelBookmarkRoute = createRoute({
-  method: 'GET',
+  method: 'get',
   path: '/v4/databases/{databaseId}/time-travel/bookmark',
   summary: 'Get a time travel bookmark',
   request: {
     params: z.object({ databaseId: z.string().min(1) }),
   },
-  responses: { 200: AnyResponse, 400: ErrorSchema },
+  responses: {
+    200: jsonResponse(AnyResponse, 'Time travel bookmark'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const timeTravelBookmarkHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
-    const data = await clientFromEnv(c.env).getBookmark(databaseId);
+    const client = getClient(c);
+    const data = await client.getBookmark(databaseId);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
@@ -317,23 +371,29 @@ export const timeTravelBookmarkHandler = async (c: Context<Env>) => {
 };
 
 const timeTravelRestoreRoute = createRoute({
-  method: 'POST',
+  method: 'post',
   path: '/v4/databases/{databaseId}/time-travel/restore',
   summary: 'Restore database to a bookmark',
   request: {
     params: z.object({ databaseId: z.string().min(1) }),
     ...jsonRequest(OptionalPayload),
   },
-  responses: { 200: AnyResponse, 400: ErrorSchema },
+  responses: {
+    200: jsonResponse(AnyResponse, 'Restore result'),
+    400: errorResponse('Bad request'),
+  },
 });
 export const timeTravelRestoreHandler = async (c: Context<Env>) => {
   const databaseId = c.req.param('databaseId');
   if (!databaseId) {
-    return c.json({ error: 'databaseId required' }, 400);
+    return c
+      .status(toContentfulStatusCode(400))
+      .json({ error: 'databaseId required' });
   }
   try {
+    const client = getClient(c);
     const payload = (await parseJson<unknown>(c)) ?? {};
-    const data = await clientFromEnv(c.env).restoreBookmark(databaseId, payload);
+    const data = await client.restoreBookmark(databaseId, payload);
     return c.json(data);
   } catch (error) {
     return handleD1Error(c, error);
