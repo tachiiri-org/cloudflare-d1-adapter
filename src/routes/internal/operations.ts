@@ -6,6 +6,14 @@ import type { Env } from '../../env';
 import { getOperationDefinition, OperationCategory } from '../../operations/catalog';
 import { D1Client, D1RequestError } from '../../services/cloudflare/v4/d1-client';
 
+interface DatabaseNameCacheEntry {
+  databaseId: string;
+  cachedAt: number;
+}
+
+const DATABASE_NAME_CACHE = new Map<string, DatabaseNameCacheEntry>();
+const DATABASE_NAME_CACHE_TTL_MS = 5 * 60 * 1000;
+
 const claimsSchema = z.object({
   role: z.enum(['runtime', 'ops']),
   actor: z.string().optional(),
@@ -65,6 +73,24 @@ async function executeOperation(client: D1Client, operation: string, input: Reco
   switch (operation) {
     case 'd1.database.list':
       return client.listDatabases();
+    case 'd1.database.resolve_by_name': {
+      const name = input?.name as string | undefined;
+      if (!name) {
+        throw new OperationInputError('name is required for d1.database.resolve_by_name');
+      }
+      const cached = DATABASE_NAME_CACHE.get(name);
+      if (cached && Date.now() - cached.cachedAt < DATABASE_NAME_CACHE_TTL_MS) {
+        return { databaseId: cached.databaseId };
+      }
+      const result = await client.listDatabasesByName(name) as { result?: { uuid?: string; id?: string }[] };
+      const match = Array.isArray(result?.result) ? result.result[0] : undefined;
+      const databaseId = match?.uuid ?? match?.id;
+      if (!databaseId) {
+        throw new OperationInputError(`database not found: ${name}`, 404);
+      }
+      DATABASE_NAME_CACHE.set(name, { databaseId: String(databaseId), cachedAt: Date.now() });
+      return { databaseId: String(databaseId) };
+    }
     case 'd1.database.get':
       return client.getDatabase(assertDatabaseId(operation, databaseId));
     case 'd1.database.create':

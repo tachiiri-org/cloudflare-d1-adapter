@@ -49,6 +49,11 @@ export class D1Client {
     return this.request(`/accounts/${this.accountId}/d1/database`, 'GET');
   }
 
+  public listDatabasesByName(name: string) {
+    const params = new URLSearchParams({ name });
+    return this.request(`/accounts/${this.accountId}/d1/database?${params.toString()}`, 'GET');
+  }
+
   public getDatabase(databaseId: string) {
     return this.request(`/accounts/${this.accountId}/d1/database/${databaseId}`, 'GET');
   }
