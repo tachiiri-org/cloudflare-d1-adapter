@@ -14,6 +14,25 @@ export function buildTenantDatabaseName(tenantId: string): string {
   return `${DEFAULT_DB_PREFIX}${tenantId}`;
 }
 
+async function retry<T>(
+  operation: () => Promise<T>,
+  options?: { attempts?: number },
+): Promise<T> {
+  const attempts = options?.attempts ?? 6;
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts - 1) {
+        throw error;
+      }
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
 function tenantKey(tenantId: string): string {
   return `${TENANT_PREFIX}${tenantId}`;
 }
@@ -86,16 +105,20 @@ export async function ensureTenantDatabase(params: {
   }
 
   // Compatibility backfill for pre-registry tenant databases.
-  const legacyDatabase = await client.listDatabasesByName(buildTenantDatabaseName(tenantId));
+  const legacyDatabase = await retry(() =>
+    client.listDatabasesByName(buildTenantDatabaseName(tenantId)),
+  );
   const legacyDatabaseId = extractDatabaseId(legacyDatabase);
   if (legacyDatabaseId) {
     await registry.setTenantDatabase(tenantId, legacyDatabaseId);
     return { databaseId: legacyDatabaseId, source: 'backfill' };
   }
 
-  const createdDatabase = await client.createDatabase({
-    name: buildTenantDatabaseName(tenantId),
-  });
+  const createdDatabase = await retry(() =>
+    client.createDatabase({
+      name: buildTenantDatabaseName(tenantId),
+    }),
+  );
   const createdDatabaseId = extractDatabaseId(createdDatabase);
   if (!createdDatabaseId) {
     throw new Error(`Failed to create database for tenant ${tenantId}`);
