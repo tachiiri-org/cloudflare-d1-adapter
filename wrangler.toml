@@ -25,6 +25,10 @@ workers_dev = false
 binding = "INTERNAL_GATEWAY_SERVICE"
 service = "internal-gateway-dev"
 
+[[env.dev.durable_objects.bindings]]
+name = "TENANT_DATABASE_REGISTRY"
+class_name = "TenantDatabaseRegistryDO"
+
 [env.dev.vars]
 ENV = "dev"
 
