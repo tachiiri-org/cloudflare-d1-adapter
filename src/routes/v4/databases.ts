@@ -4,6 +4,7 @@ import type { Context } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Env } from '../../env';
 import type { EnvBindings } from '../../env';
+import { createTenantDatabaseRegistry } from '../../registry/tenantDatabaseRegistry';
 import { D1Client, D1RequestError } from '../../services/cloudflare/v4/d1-client';
 
 const AnyResponse = z.unknown();
@@ -205,6 +206,7 @@ export const databaseDeleteHandler = async (c: Context<Env>) => {
   }
   try {
     await clientFromEnv(c.env).deleteDatabase(databaseId);
+    await createTenantDatabaseRegistry(c.env.TENANT_DATABASE_REGISTRY).removeByDatabaseId(databaseId);
     return respondWithStatus(c, toContentfulStatusCode(204), {});
   } catch (error) {
     return handleD1Error(c, error);

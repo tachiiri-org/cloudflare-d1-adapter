@@ -25,7 +25,8 @@ function build(name: string, category: OperationCategory, mutates: boolean, requ
 
 export const operations: Record<string, OperationDefinition> = {
   'd1.database.list': build('d1.database.list', OperationCategory.Runtime, false, false, 'List D1 databases'),
-  'd1.database.resolve_by_name': build('d1.database.resolve_by_name', OperationCategory.Runtime, false, false, 'Resolve database ID by name (cached)'),
+  'd1.database.resolve_by_name': build('d1.database.resolve_by_name', OperationCategory.Runtime, false, false, 'Resolve database ID by name (deprecated compatibility path)'),
+  'd1.database.ensure_for_tenant': build('d1.database.ensure_for_tenant', OperationCategory.Ops, true, true, 'Ensure a D1 database exists for a tenant and return its id'),
   'd1.database.get': build('d1.database.get', OperationCategory.Runtime, false, false, 'Get single D1 database'),
   'd1.database.create': build('d1.database.create', OperationCategory.Ops, true, true, 'Create a D1 database'),
   'd1.database.update': build('d1.database.update', OperationCategory.Ops, true, true, 'Replace metadata for a D1 database'),
