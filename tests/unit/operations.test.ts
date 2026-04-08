@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   getOperationDefinition,
@@ -9,6 +11,14 @@ import {
 import { buildTenantDatabaseName, ensureTenantDatabase } from '../../src/registry/tenantDatabaseRegistry';
 
 describe('operations catalog', () => {
+  it('binds the tenant registry durable object in the dev environment', () => {
+    const wranglerToml = readFileSync(resolve(import.meta.dirname, '../../wrangler.toml'), 'utf8');
+
+    expect(wranglerToml).toContain('[[env.dev.durable_objects.bindings]]');
+    expect(wranglerToml).toContain('name = "TENANT_DATABASE_REGISTRY"');
+    expect(wranglerToml).toContain('class_name = "TenantDatabaseRegistryDO"');
+  });
+
   it('exposes the expected D1 operations from setup guidance', () => {
     expect(Object.keys(operations)).toHaveLength(14);
     expect(operations['d1.database.list'].category).toBe(OperationCategory.Runtime);
