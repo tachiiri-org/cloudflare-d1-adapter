@@ -10,6 +10,14 @@ service = "internal-gateway"
 [vars]
 ENV = "production"
 
+[[durable_objects.bindings]]
+name = "TENANT_DATABASE_REGISTRY"
+class_name = "TenantDatabaseRegistryDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TenantDatabaseRegistryDO"]
+
 [env.dev]
 workers_dev = false
 

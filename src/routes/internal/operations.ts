@@ -5,14 +5,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Env } from '../../env';
 import { getOperationDefinition, OperationCategory } from '../../operations/catalog';
 import { D1Client, D1RequestError } from '../../services/cloudflare/v4/d1-client';
-
-interface DatabaseNameCacheEntry {
-  databaseId: string;
-  cachedAt: number;
-}
-
-const DATABASE_NAME_CACHE = new Map<string, DatabaseNameCacheEntry>();
-const DATABASE_NAME_CACHE_TTL_MS = 5 * 60 * 1000;
+import { createTenantDatabaseRegistry, ensureTenantDatabase } from '../../registry/tenantDatabaseRegistry';
 
 const claimsSchema = z.object({
   role: z.enum(['runtime', 'ops']),
@@ -78,18 +71,13 @@ async function executeOperation(client: D1Client, operation: string, input: Reco
       if (!name) {
         throw new OperationInputError('name is required for d1.database.resolve_by_name');
       }
-      const cached = DATABASE_NAME_CACHE.get(name);
-      if (cached && Date.now() - cached.cachedAt < DATABASE_NAME_CACHE_TTL_MS) {
-        return { databaseId: cached.databaseId };
-      }
       const result = await client.listDatabasesByName(name) as { result?: { uuid?: string; id?: string }[] };
       const match = Array.isArray(result?.result) ? result.result[0] : undefined;
-      const databaseId = match?.uuid ?? match?.id;
-      if (!databaseId) {
+      const resolvedDatabaseId = match?.uuid ?? match?.id;
+      if (!resolvedDatabaseId) {
         throw new OperationInputError(`database not found: ${name}`, 404);
       }
-      DATABASE_NAME_CACHE.set(name, { databaseId: String(databaseId), cachedAt: Date.now() });
-      return { databaseId: String(databaseId) };
+      return { databaseId: String(resolvedDatabaseId) };
     }
     case 'd1.database.get':
       return client.getDatabase(assertDatabaseId(operation, databaseId));
@@ -168,7 +156,20 @@ export const internalOperationsHandler = async (c: Context<Env>) => {
     enforceClaims(definition, claims);
     ensureIdempotency(definition, parsed.data.idempotency_key);
     const client = D1Client.fromEnv(c.env);
-    const result = await executeOperation(client, definition.name, parsed.data.input ?? undefined);
+    const result =
+      definition.name === 'd1.database.ensure_for_tenant'
+        ? await (async () => {
+            const tenantId = parsed.data.input?.tenantId as string | undefined;
+            if (!tenantId) {
+              throw new OperationInputError('tenantId is required for d1.database.ensure_for_tenant');
+            }
+            return ensureTenantDatabase({
+              tenantId,
+              registry: createTenantDatabaseRegistry(c.env.TENANT_DATABASE_REGISTRY),
+              client,
+            });
+          })()
+        : await executeOperation(client, definition.name, parsed.data.input ?? undefined);
     return c.json({
       operation: definition.name,
       contract_version: definition.contractVersion,

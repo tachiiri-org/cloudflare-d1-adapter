@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Env } from './env';
 import { databasesRoutes } from './routes/v4/databases';
 import { internalOperationsRouteDefinition } from './routes/internal/operations';
+import { TenantDatabaseRegistryDO } from './registry/tenantDatabaseRegistry';
 
 const app = new Hono<Env>();
 
@@ -44,3 +45,4 @@ const { route: internalRoute, handler: internalHandler } = internalOperationsRou
 registerRoute(internalRoute.method, internalRoute.getRoutingPath(), internalHandler);
 
 export default app;
+export { TenantDatabaseRegistryDO };
