@@ -87,6 +87,40 @@ describe('tenant database registry helpers', () => {
     expect(writes).toEqual([{ tenantId: 'tenant-acme', databaseId: 'db-legacy' }]);
   });
 
+  it('retries the legacy name backfill before succeeding', async () => {
+    let attempts = 0;
+    const writes: Array<{ tenantId: string; databaseId: string }> = [];
+    const registry = {
+      getDatabaseId: async () => null,
+      setTenantDatabase: async (tenantId: string, databaseId: string) => {
+        writes.push({ tenantId, databaseId });
+      },
+      removeByDatabaseId: async () => undefined,
+    };
+    const client = {
+      listDatabasesByName: async () => {
+        attempts += 1;
+        if (attempts < 3) {
+          throw new Error('transient control-plane error');
+        }
+        return { result: [{ uuid: 'db-legacy' }] };
+      },
+      createDatabase: async () => {
+        throw new Error('should not be called');
+      },
+    };
+
+    await expect(
+      ensureTenantDatabase({
+        tenantId: 'tenant-acme',
+        registry,
+        client,
+      }),
+    ).resolves.toEqual({ databaseId: 'db-legacy', source: 'backfill' });
+    expect(attempts).toBe(3);
+    expect(writes).toEqual([{ tenantId: 'tenant-acme', databaseId: 'db-legacy' }]);
+  });
+
   it('creates and stores a database when neither registry nor backfill resolve it', async () => {
     const writes: Array<{ tenantId: string; databaseId: string }> = [];
     const registry = {
